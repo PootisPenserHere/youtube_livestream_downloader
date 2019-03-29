@@ -32,7 +32,7 @@ class Youtube():
         key_section = "%s%s" % ("key=", self.api_key)
         channel_section = "channelId=%s" % channel_id
 
-        return "%s?%s&%s&%s&order=date&maxResults=%s" % \
+        return "%s?%s&%s&%s&order=date&maxResults=%s&eventType=live&type=video" % \
                (self.base_url, key_section, parts_section, channel_section, self.max_results)
 
     @staticmethod
@@ -99,6 +99,6 @@ class Youtube():
 
 
 youtube = Youtube()
-videos = youtube.list_available_videos("UCtXfnHIgLI2arDmwhBGYWVg")
+videos = youtube.list_available_videos("UCLA_DiR1FfKNvjuUpBHmylQ")
 print(json.dumps(videos))
 print(len(videos))
