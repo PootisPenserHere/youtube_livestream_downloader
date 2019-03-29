@@ -49,7 +49,7 @@ class Youtube():
         """
 
         if page_token:
-            url = "%s&nextPageToken=%s" % (url, page_token)
+            url = "%s&pageToken=%s" % (url, page_token)
 
         raw = requests.get(url)
 
@@ -68,7 +68,6 @@ class Youtube():
 
         url = self._switch_channel(channel_id)
         current_iteration = self._fetch_from_api(url)
-        print(json.dumps(current_iteration))
         all_videos = current_iteration["items"]
 
         total_results = current_iteration["pageInfo"]["totalResults"]
@@ -78,7 +77,6 @@ class Youtube():
 
             count = 1
             while count < needed_iterations:
-                print(count)
                 token = current_iteration["nextPageToken"]
                 current_iteration = self._fetch_from_api(url, token)
 
@@ -92,14 +90,7 @@ class Youtube():
             return all_videos
 
 
-youtube = Youtube("youtube-api-key")
-videos = youtube.list_available_videos("UCLA_DiR1FfKNvjuUpBHmylQ")
-
-# Eliminating duplicated entries
-new = []
-for video in videos:
-    if video not in new:
-        new.append(video)
-
+youtube = Youtube("AIzaSyC6HG7MHvyP7_zULcFsFjsTyipFhTY44mg")
+videos = youtube.list_available_videos("UCtXfnHIgLI2arDmwhBGYWVg")
+print(json.dumps(videos))
 print(len(videos))
-print(len(new))
