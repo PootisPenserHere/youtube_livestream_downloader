@@ -1,13 +1,18 @@
 import requests
 import json
+from dotenv import load_dotenv
+import os
 
 
 class Youtube():
-    def __init__(self, api_key):
+    def __init__(self):
+        # Loading the env properties into the system
+        load_dotenv(".env")
+
         # Componenets for the full url
         self.base_url = "https://www.googleapis.com/youtube/v3/search"
         self.parts = ["snippet", "id"]
-        self.api_key = api_key
+        self.api_key = os.getenv("YOUTUBE_API_KEY")
 
     def _switch_channel(self, channel_id: str) -> str:
         """
@@ -90,7 +95,7 @@ class Youtube():
             return all_videos
 
 
-youtube = Youtube("AIzaSyC6HG7MHvyP7_zULcFsFjsTyipFhTY44mg")
+youtube = Youtube()
 videos = youtube.list_available_videos("UCtXfnHIgLI2arDmwhBGYWVg")
 print(json.dumps(videos))
 print(len(videos))
