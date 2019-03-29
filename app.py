@@ -13,6 +13,8 @@ class Youtube():
         self.base_url = "https://www.googleapis.com/youtube/v3/search"
         self.parts = ["snippet", "id"]
         self.api_key = os.getenv("YOUTUBE_API_KEY")
+        self.max_results = int(os.getenv("MAX_RESULTS_PER_CALL"))
+        self.max_depth = int(os.getenv("MAX_DEPTH"))
 
     def _switch_channel(self, channel_id: str) -> str:
         """
@@ -30,7 +32,8 @@ class Youtube():
         key_section = "%s%s" % ("key=", self.api_key)
         channel_section = "channelId=%s" % channel_id
 
-        return "%s?%s&%s&%s&order=date&maxResults=50" % (self.base_url, key_section, parts_section, channel_section)
+        return "%s?%s&%s&%s&order=date&maxResults=%s" % \
+               (self.base_url, key_section, parts_section, channel_section, self.max_results)
 
     @staticmethod
     def _fetch_from_api(url, page_token=None):
@@ -77,11 +80,11 @@ class Youtube():
 
         total_results = current_iteration["pageInfo"]["totalResults"]
 
-        if total_results > 50:
-            needed_iterations = total_results / 50
+        if total_results > self.max_results:
+            needed_iterations = total_results / self.max_results
 
             count = 1
-            while count < needed_iterations:
+            while count < needed_iterations and count < self.max_depth:
                 token = current_iteration["nextPageToken"]
                 current_iteration = self._fetch_from_api(url, token)
 
