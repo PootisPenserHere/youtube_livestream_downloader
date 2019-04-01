@@ -1,0 +1,10 @@
+version: '3.5'
+services:
+  api:
+    container_name: youtube_livestream_downloader
+    restart: always
+    build: .
+    ports:
+      - "9060:5000"
+    volumes:
+      - .:/usr/src/app
