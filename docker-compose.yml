@@ -17,8 +17,8 @@ services:
     volumes:
       - ~/volumes/mysql-data:/var/lib/mysql
     environment:
-      MYSQL_ROOT_PASSWORD: 'RootPassword'
-      MYSQL_USER: 'downloader'
-      MYSQL_PASS: 'PasswordForNonRootUser'
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASS: ${MYSQL_PASS}
 volumes:
   mysql-data:
