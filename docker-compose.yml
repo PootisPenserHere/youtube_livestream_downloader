@@ -1,10 +1,24 @@
 version: '3.5'
 services:
   api:
-    container_name: youtube_livestream_downloader
+    container_name: livestream_downloader_api
     restart: always
     build: .
     ports:
       - "9060:5000"
     volumes:
       - .:/usr/src/app
+    depends_on:
+      - mysql
+  mysql:
+    container_name: livestream_downloader_mysql
+    restart: always
+    build: database
+    volumes:
+      - ~/volumes/mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 'RootPassword'
+      MYSQL_USER: 'downloader'
+      MYSQL_PASS: 'PasswordForNonRootUser'
+volumes:
+  mysql-data:
