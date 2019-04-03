@@ -11,8 +11,6 @@ ENV LANG en_US.utf8
 # Starting scripts
 ADD . /docker-entrypoint-initdb.d
 
-RUN mkdir /etc/mysql/mysql.conf.d
-
 # Config
 ADD my.cnf /etc/mysql
 
