@@ -9,11 +9,13 @@ from flask_sqlalchemy import SQLAlchemy
 load_dotenv(".env")
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://%s:%s@%s:%i/%s' % (os.getenv("DB_USER"),
-                                                                    os.getenv("MYSQL_ROOT_PASSWORD"),
-                                                                    os.getenv("DB_HOST"),
-                                                                    int(os.getenv("DB_PORT")),
-                                                                    os.getenv("DB_SCHEMA"))
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://%s:%s@%s:%i/%s' % (
+    os.getenv("DB_USER"),
+    os.getenv("MYSQL_ROOT_PASSWORD"),
+    os.getenv("DB_HOST"),
+    int(os.getenv("DB_PORT")),
+    os.getenv("DB_SCHEMA")
+)
 db = SQLAlchemy(app)
 
 

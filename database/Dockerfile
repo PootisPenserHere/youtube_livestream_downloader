@@ -1,4 +1,4 @@
-FROM mysql:5.7
+FROM mysql:8.0
 
 # make the "en_US.UTF-8" locale so ~postgres~ mysql/mariadb will be utf-8 enabled by default
 RUN apt-get update \
@@ -10,6 +10,8 @@ ENV LANG en_US.utf8
 
 # Starting scripts
 ADD . /docker-entrypoint-initdb.d
+
+RUN mkdir /etc/mysql/mysql.conf.d
 
 # Config
 ADD my.cnf /etc/mysql
