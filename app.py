@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 import os
 from src.Youtube import Youtube
 from flask_sqlalchemy import SQLAlchemy
-import json
 
 # Loading the env properties into the system
 load_dotenv(".env")
@@ -27,6 +26,7 @@ class Streams(db.Model):
     raw = db.Column(db.JSON, nullable=False)
     status = db.Column(db.Enum("queued", "downloading", "done"), nullable=False, server_default="downloading")
     created_at = db.Column(db.DateTime, server_default=db.func.now())
+    # FIXME the server_onupdate clause is not adding the respestive sql code
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 
     def __init__(self, title, video_id, raw):

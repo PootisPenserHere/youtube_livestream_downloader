@@ -8,6 +8,8 @@ services:
       - "9060:5000"
     volumes:
       - .:/usr/src/app
+    environment:
+      TZ: ${CONTAINER_TIMEZONE}
     depends_on:
       - mysql
   mysql:
@@ -20,5 +22,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASS: ${MYSQL_PASS}
+      TZ: ${CONTAINER_TIMEZONE}
 volumes:
   mysql-data:

@@ -3,10 +3,9 @@ FROM python:3.7-alpine
 WORKDIR /usr/src/app
 COPY . .
 
+RUN apk add --no-cache tzdata
 
-RUN apk add --no-cache --virtual .build-deps tzdata g++ mariadb-dev build-base mariadb-connector-c-dev && \
-cp /usr/share/zoneinfo/America/Mazatlan /etc/localtime && \
-echo $CONTAINER_TIMEZONE > /etc/timezone && \
+RUN apk add --no-cache --virtual .build-deps g++ mariadb-dev build-base mariadb-connector-c-dev && \
 pip install --no-cache-dir -r requirements.txt && \
 apk del .build-deps
 
