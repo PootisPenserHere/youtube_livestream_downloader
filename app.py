@@ -23,19 +23,29 @@ class Streams(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(250), nullable=False, unique=True, server_default="")
     video_id = db.Column(db.String(50), nullable=False, unique=True, server_default="")
+    channel_id = db.Column(db.String(50), nullable=False, server_default="")
+    channel_name = db.Column(db.String(100), nullable=False, server_default="")
     raw = db.Column(db.JSON, nullable=False)
     status = db.Column(db.Enum("queued", "downloading", "done"), nullable=False, server_default="downloading")
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-    # FIXME the server_onupdate clause is not adding the respestive sql code
+    # FIXME the server_onupdate clause is not adding the respestive sql codes
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 
-    def __init__(self, title, video_id, raw):
+    def __init__(self, title, video_id, channel_id, channel_name, raw):
         self.title = title
         self.video_id = video_id
+        self.channel_id = channel_id
+        self.channel_name = channel_name
         self.raw = raw
 
     def __repr__(self):
-        return '<Title %r video_id %r status %r>' % (self.title, self.video_id, self.status)
+        return '<Title %r video_id %r channel_id %r channel name %r status %r>' % (
+            self.title,
+            self.video_id,
+            self.channel_id,
+            self.channel_name,
+            self.status
+        )
 
 
 @app.before_first_request
@@ -61,8 +71,18 @@ def download_livestreams_from_channel(channel_id):
 
     for current in current_streams:
         title = current["snippet"]["title"]
+        src_channel_id = current["snippet"]["channelId"]
+        channel_name = current["snippet"]["channelTitle"]
         video_id = current["id"]["videoId"]
-        insert = Streams(title=title, video_id=video_id, raw=current)
+
+        insert = Streams(
+            title=title,
+            video_id=video_id,
+            raw=current,
+            channel_id=src_channel_id,
+            channel_name=channel_name
+        )
+
         db.session.add(insert)
         db.session.commit()
 
