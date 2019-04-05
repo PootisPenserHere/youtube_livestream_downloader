@@ -28,7 +28,7 @@ class Streams(db.Model):
     raw = db.Column(db.JSON, nullable=False)
     status = db.Column(db.Enum("queued", "downloading", "done"), nullable=False, server_default="downloading")
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-    # FIXME the server_onupdate clause is not adding the respestive sql codes
+    # FIXME the server_onupdate clause is not adding the respective sql codes
     updated_at = db.Column(db.DateTime, server_default=db.func.now(), server_onupdate=db.func.now())
 
     def __init__(self, title, video_id, channel_id, channel_name, raw):
@@ -39,7 +39,7 @@ class Streams(db.Model):
         self.raw = raw
 
     def __repr__(self):
-        return '<Title %r video_id %r channel_id %r channel name %r status %r>' % (
+        return '<Title %s video_id %s channel_id %s channel name %s status %s>' % (
             self.title,
             self.video_id,
             self.channel_id,
@@ -75,16 +75,35 @@ def download_livestreams_from_channel(channel_id):
         channel_name = current["snippet"]["channelTitle"]
         video_id = current["id"]["videoId"]
 
-        insert = Streams(
-            title=title,
-            video_id=video_id,
-            raw=current,
-            channel_id=src_channel_id,
-            channel_name=channel_name
-        )
+        row = db.session.query(Streams).filter_by(video_id=video_id).first()
 
-        db.session.add(insert)
-        db.session.commit()
+        # If the stream was found in the database and has a status that mark it as anything different
+        # than queued we ignore this entry
+        #
+        # A queued stream is one that had already begin to be downloaded and was cancelled thus needs
+        # to be restarted
+        if row and row.status != os.getenv("STREAM_STATUS_QUEUE"):
+            continue
+        else:
+            # Determines if there are streams that need to be restarted
+            if row and row.status == os.getenv("STREAM_STATUS_QUEUE"):
+                row.status = os.getenv("STREAM_STATUS_DOWNLOADING")  # Changing its status to reflect the restart
+                db.session.commit()
+
+                # TODO restart the download here
+
+            # Streams that are not found in the database are new and beging their download process here
+            else:
+                insert = Streams(
+                    title=title,
+                    video_id=video_id,
+                    raw=current,
+                    channel_id=src_channel_id,
+                    channel_name=channel_name
+                )
+
+                db.session.add(insert)
+                db.session.commit()
 
     return jsonify({"status": "success", "message": youtube.list_available_videos(channel_id)})
 
