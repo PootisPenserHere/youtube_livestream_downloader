@@ -65,6 +65,22 @@ def find_livestreams_in_channel(channel_id):
     return jsonify({"status": "success", "message": youtube.list_available_videos(channel_id)})
 
 
+@app.route('/downloads', methods=['GET'])
+def list_streams_on_download():
+    records = db.session.query(Streams).filter_by(status=os.getenv("STREAM_STATUS_DOWNLOADING")).all()
+    downloads = []
+
+    for record in records:
+        downloads.append({
+            "title": record.title,
+            "video_id": record.video_id,
+            "channel_id": record.channel_id,
+            "channel_name": record.channel_name
+        })
+
+    return jsonify({"status": "success", "message": downloads})
+
+
 @app.route('/download/<channel_id>', methods=['GET'])
 def download_livestreams_from_channel(channel_id):
     current_streams = youtube.list_available_videos(channel_id)
@@ -85,6 +101,7 @@ def download_livestreams_from_channel(channel_id):
         # to be restarted
         if row and row.status != os.getenv("STREAM_STATUS_QUEUE"):
             continue
+
         else:
             # Determines if there are streams that need to be restarted
             if row and row.status == os.getenv("STREAM_STATUS_QUEUE"):
