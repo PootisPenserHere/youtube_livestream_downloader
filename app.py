@@ -68,6 +68,7 @@ def find_livestreams_in_channel(channel_id):
 @app.route('/download/<channel_id>', methods=['GET'])
 def download_livestreams_from_channel(channel_id):
     current_streams = youtube.list_available_videos(channel_id)
+    processed_streams = []
 
     for current in current_streams:
         title = current["snippet"]["title"]
@@ -92,8 +93,12 @@ def download_livestreams_from_channel(channel_id):
 
                 # TODO restart the download here
 
+                processed_streams.append({"title": title, "video_id": video_id, "is_new": False})
+
             # Streams that are not found in the database are new and beging their download process here
             else:
+                processed_streams.append({"title": title, "video_id": video_id, "is_new": True})
+
                 insert = Streams(
                     title=title,
                     video_id=video_id,
@@ -105,7 +110,7 @@ def download_livestreams_from_channel(channel_id):
                 db.session.add(insert)
                 db.session.commit()
 
-    return jsonify({"status": "success", "message": youtube.list_available_videos(channel_id)})
+    return jsonify({"status": "success", "processed_streams": processed_streams, "all_streams": current_streams})
 
 
 if __name__ == "__main__":
