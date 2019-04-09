@@ -3,7 +3,9 @@ from flask import jsonify
 from dotenv import load_dotenv
 import os
 from src.Youtube import Youtube
+from src.Downloader import Downloader
 from flask_sqlalchemy import SQLAlchemy
+import threading
 
 # Loading the env properties into the system
 load_dotenv(".env")
@@ -58,6 +60,7 @@ app.config['MAX_RESULTS'] = int(os.getenv("MAX_RESULTS_PER_CALL"))
 app.config['MAX_DEPTH'] = int(os.getenv("MAX_DEPTH"))
 
 youtube = Youtube(app.config['YOUTUBE_API_KEY'], app.config['MAX_RESULTS'], app.config['MAX_DEPTH'])
+downloader = Downloader()
 
 
 @app.route('/list/<channel_id>', methods=['GET'])
@@ -114,6 +117,14 @@ def download_livestreams_from_channel(channel_id):
 
             # Streams that are not found in the database are new and beging their download process here
             else:
+                url = downloader.base_url % video_id
+
+                # A new thread is opened to download the new livestream
+                # FIXME titles with unusual names cause youtube-dl to fail to create the file
+                threading.Thread(name=video_id,
+                                 target=downloader.download,
+                                 args=(url, title)).start()
+
                 processed_streams.append({"title": title, "video_id": video_id, "is_new": True})
 
                 insert = Streams(
