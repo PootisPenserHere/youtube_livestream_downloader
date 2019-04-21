@@ -6,6 +6,7 @@ from src.Youtube import Youtube
 from src.Downloader import Downloader
 from flask_sqlalchemy import SQLAlchemy
 import threading
+import subprocess
 
 # Loading the env properties into the system
 load_dotenv(".env")
@@ -135,10 +136,31 @@ def download_livestreams_from_channel(channel_id):
                     channel_name=channel_name
                 )
 
+                stream_download = threading.Thread(name=video_id,
+                                                   target=download_livestream,
+                                                   args=(video_id, title))
+                stream_download.start()
+
                 db.session.add(insert)
                 db.session.commit()
 
     return jsonify({"status": "success", "processed_streams": processed_streams, "all_streams": current_streams})
+
+
+def download_livestream(video_id: str, title: str):
+    stream_disk_name = "videos/%s.ts" % video_id
+    video_url = os.getenv("YOUTUBE_VIDEO_BASE_URL") % video_id
+
+    # Downloading the video
+    # TODO call streamlink from within python
+    subprocess.check_output([
+        "streamlink",
+        "--hls-live-restart",
+        "-o",
+        stream_disk_name,
+        video_url,
+        os.getenv("DESIRED_QUALITY")
+    ])
 
 
 if __name__ == "__main__":

@@ -17,7 +17,7 @@ services:
     restart: always
     build: database
     volumes:
-      - ~/volumes/mysql-data:/var/lib/mysql
+      - ~/volumes/stream-downloader/mysql-data:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_USER: ${MYSQL_USER}
