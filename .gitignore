@@ -106,4 +106,8 @@ venv.bak/
 # jetbrains
 .idea/*
 
+# Downloade videos
+videos/
+
+# Mac stuff
 .DS_Store
